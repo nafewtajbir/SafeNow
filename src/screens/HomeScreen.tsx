@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Language, TabType, AIRiskAssessment, UserCoordinates } from '../types';
+import { Language, TabType, AIRiskAssessment, UserCoordinates, DispatchService } from '../types';
 import { useRealtimeTelemetry } from '../hooks/useRealtimeTelemetry';
 import { assessLocationRisk } from '../services/aiService';
+import { DISPATCH_SERVICES } from '../data';
 
 interface HomeScreenProps {
   language: Language;
@@ -17,6 +18,7 @@ interface HomeScreenProps {
   isGPSActive?: boolean;
   onDetectCurrentLocation?: () => void;
   isLocatingGPS?: boolean;
+  onOpenDispatchModal?: (service: DispatchService) => void;
 }
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
@@ -33,6 +35,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   isGPSActive,
   onDetectCurrentLocation,
   isLocatingGPS,
+  onOpenDispatchModal,
 }) => {
   const { telemetry, isConnected } = useRealtimeTelemetry();
   const [isScanningAI, setIsScanningAI] = useState(false);
@@ -550,6 +553,63 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               </p>
             </div>
           </button>
+        </div>
+      </div>
+
+      {/* DIRECT DISPATCH SERVICES: MEDICAL, RESCUE, SHELTER, CLEAN WATER, FOOD */}
+      <div className="p-4 rounded-2xl bg-surface-container-lowest shadow-[0_4px_20px_-2px_rgba(15,23,42,0.05)] border border-surface-container-high/40 flex flex-col space-y-3">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-error animate-pulse" />
+            <h3 className="font-headline font-bold text-base text-on-surface">
+              {language === 'en' ? 'Direct Dispatch Services' : 'সরাসরি রেসকিউ সেবা'}
+            </h3>
+          </div>
+          <button
+            onClick={() => onNavigateTab('get-help')}
+            className="font-headline text-xs text-primary font-bold hover:underline flex items-center gap-0.5 cursor-pointer"
+            type="button"
+          >
+            <span>{language === 'en' ? 'View All' : 'সবগুলো দেখুন'}</span>
+            <span className="material-symbols-outlined text-[14px]">arrow_forward</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
+          {DISPATCH_SERVICES.map((service) => (
+            <button
+              key={service.id}
+              onClick={() => {
+                if (onOpenDispatchModal) {
+                  onOpenDispatchModal(service);
+                } else {
+                  onNavigateTab('get-help');
+                }
+              }}
+              className="p-3 rounded-xl bg-surface-container-low hover:bg-surface-container active:scale-95 transition-all text-left flex flex-col justify-between min-h-[96px] border border-surface-container cursor-pointer group shadow-xs"
+              type="button"
+            >
+              <div className="flex items-center justify-between w-full">
+                <span
+                  className={`w-9 h-9 rounded-lg flex items-center justify-center ${service.colorClass}`}
+                >
+                  <span className="material-symbols-outlined text-[20px]">{service.icon}</span>
+                </span>
+                <span className="material-symbols-outlined text-[16px] text-secondary opacity-0 group-hover:opacity-100 transition-opacity">
+                  north_east
+                </span>
+              </div>
+              <div className="mt-2">
+                <p className="font-headline font-bold text-xs text-on-surface leading-tight truncate">
+                  {language === 'en' ? service.titleEn : service.titleBn}
+                </p>
+                <p className="font-body text-[10px] text-primary font-semibold mt-0.5 flex items-center gap-0.5">
+                  <span className="material-symbols-outlined text-[12px]">send</span>
+                  <span>{language === 'en' ? 'Request Aid' : 'আবেদন'}</span>
+                </p>
+              </div>
+            </button>
+          ))}
         </div>
       </div>
 

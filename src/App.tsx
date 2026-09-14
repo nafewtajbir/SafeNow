@@ -165,6 +165,7 @@ export default function App() {
             isGPSActive={isGPSActive}
             onDetectCurrentLocation={handleDetectCurrentLocation}
             isLocatingGPS={isLocatingGPS}
+            onOpenDispatchModal={setSelectedDispatchService}
           />
         )}
 
@@ -175,6 +176,11 @@ export default function App() {
             userCoordinates={userCoordinates}
             isGPSActive={isGPSActive}
             onDetectCurrentLocation={handleDetectCurrentLocation}
+            onRequestAid={(service) => {
+              setSelectedDispatchService(
+                service || DISPATCH_SERVICES.find((s) => s.id === 'shelter') || DISPATCH_SERVICES[0]
+              );
+            }}
           />
         )}
 
@@ -191,9 +197,12 @@ export default function App() {
           <GetHelpScreen
             language={language}
             currentLocation={currentLocation}
+            onOpenDispatchModal={setSelectedDispatchService}
             onSelectService={setSelectedDispatchService}
             onOpenAIChat={() => handleOpenAICompanion()}
+            onNavigateTab={setCurrentTab}
             userCoordinates={userCoordinates}
+            isGPSActive={isGPSActive}
           />
         )}
 
@@ -257,6 +266,8 @@ export default function App() {
           onClose={() => setSelectedDispatchService(null)}
           language={language}
           currentLocation={currentLocation}
+          userCoordinates={userCoordinates}
+          onServiceChange={setSelectedDispatchService}
         />
       )}
     </div>

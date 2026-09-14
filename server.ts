@@ -661,19 +661,98 @@ Respond in JSON with schema:
     } = req.body;
 
     const isBn = language === 'bn';
+
+    const getUnitForService = (type: string) => {
+      switch (type) {
+        case 'clean_water':
+          return 'CWASA Rapid Water Tanker 04 & Purification Unit';
+        case 'rescue':
+          return 'Chattogram Naval Coast Guard Unit 02 (Speedboat)';
+        case 'shelter':
+          return 'Agrabad Cyclone Shelter Evacuation Transport';
+        case 'food_supplies':
+          return 'Red Crescent Emergency Ration Response Unit';
+        case 'medical':
+        default:
+          return 'Agrabad Fire & Medical Triage Squad 01';
+      }
+    };
+
+    const getInstructionsForService = (type: string) => {
+      switch (type) {
+        case 'clean_water':
+          return isBn
+            ? [
+                'পানি ফুটিয়ে বা বিশুদ্ধকরণ ট্যাবলেট মিশিয়ে পান করুন',
+                'টিউবওয়েল প্লাবিত হলে সেখান থেকে পানি পান করবেন না',
+                'পানির পাত্র উঁচু ও পরিষ্কার স্থানে ঢেকে রাখুন',
+              ]
+            : [
+                'Do not drink from submerged or murky tube-wells.',
+                'Use chlorine water purification tablets if distributed.',
+                'Keep clean water containers elevated above flood surge.',
+              ];
+        case 'rescue':
+          return isBn
+            ? [
+                'ভবনের ছাদ বা দ্বিতীয় তলায় অবস্থান নিন',
+                'পানির স্রোতে হাঁটা বা সাঁতার কাটা এড়িয়ে চলুন',
+                'উদ্ধারকারী বোটকে দৃষ্টি আকর্ষণের জন্য কাপড় বা আলো দেখান',
+              ]
+            : [
+                'Stay on the rooftop or highest level of the building.',
+                'Avoid wading or swimming in rushing flood channels.',
+                'Signal responding speedboats using bright fabric or torchlight.',
+              ];
+        case 'shelter':
+          return isBn
+            ? [
+                'প্রয়োজনীয় জরুরি কাগজপত্র পলিথিনে মুড়িয়ে সাথে নিন',
+                'পিকআপ দলের জন্য অপেক্ষা করুন বা নিকটবর্তী সাইক্লোন সেন্টারে যান',
+                'পরিবারের শিশু ও বয়স্কদের একসাথে রাখুন',
+              ]
+            : [
+                'Pack essential identification & documents in waterproof plastic.',
+                'Await shelter transport shuttle or proceed via safe CDA corridor.',
+                'Keep children and elderly family members closely assembled.',
+              ];
+        case 'food_supplies':
+          return isBn
+            ? [
+                'শুকনো খাবার ও শিশু খাদ্য অগ্রাধিকার দিন',
+                'খাদ্য সামগ্রী শুকনো ও প্লাবনমুক্ত স্থানে সংরক্ষণ করুন',
+                'ত্রাণ বিতরণ কেন্দ্রে শৃঙ্খলার সাথে অপেক্ষা করুন',
+              ]
+            : [
+                'Prioritize energy biscuits and clean formula for infants.',
+                'Keep dry food rations elevated above water ingress points.',
+                'Field squad is bringing sealed ration packs and ORS.',
+              ];
+        case 'medical':
+        default:
+          return isBn
+            ? [
+                'রোগীকে শুকনো ও নিরাপদ স্থানে শুইয়ে রাখুন',
+                'রক্তপাত হলে পরিষ্কার কাপড় দিয়ে চেপে ধরে রাখুন',
+                'প্যারামেডিক দল রওনা হয়েছে, শান্ত থাকুন',
+              ]
+            : [
+                'Keep the patient warm and dry on elevated furniture or 2nd floor.',
+                'Apply firm pressure with clean fabric to any active bleeding.',
+                'First responder paramedic vehicle is en-route.',
+              ];
+      }
+    };
+
     const fallbackTriage = {
       ticketId: `DISP-${Math.floor(1000 + Math.random() * 9000)}`,
-      assignedUnit: serviceType === 'rescue' ? 'Chattogram Naval Unit 02 (Speedboat)' : 'Agrabad Fire & Medical Squad 01',
-      etaMinutes: 8,
+      assignedUnit: getUnitForService(serviceType),
+      etaMinutes: serviceType === 'rescue' ? 6 : serviceType === 'clean_water' ? 9 : 7,
       status: 'DISPATCHED',
       priorityLevel: 'CRITICAL',
-      instructions: [
-        isBn ? 'উঁচু স্থানে অবস্থান করুন' : 'Stay on elevated ground or second floor',
-        isBn ? 'ফোনের ব্যাটারি বাঁচিয়ে রাখুন' : 'Preserve mobile battery and flash beacon screen',
-        isBn ? 'উদ্ধারকারী দল রওনা হয়েছে' : 'First responders are en-route with amphibious equipment',
-      ],
-      instructionsEn: 'Stay on elevated ground. Keep your mobile phone battery preserved and flash screen beacon.',
-      instructionsBn: 'উঁচু স্থানে অবস্থান করুন। ফোনের ব্যাটারি বাঁচিয়ে রাখুন এবং স্ক্রিনের আলো প্রদর্শন করুন।',
+      instructions: getInstructionsForService(serviceType),
+      instructionsEn: 'Stay on elevated ground. Responders have been dispatched to your location.',
+      instructionsBn: 'উঁচু স্থানে অবস্থান করুন। উদ্ধারকারী দল আপনার এলাকায় রওনা হয়েছে।',
     };
 
     const ai = getGeminiClient();

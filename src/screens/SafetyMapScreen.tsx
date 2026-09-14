@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Language, ShelterItem, AIRouteAdvice, UserCoordinates } from '../types';
-import { SHELTERS } from '../data';
+import { Language, ShelterItem, AIRouteAdvice, UserCoordinates, DispatchService } from '../types';
+import { SHELTERS, DISPATCH_SERVICES } from '../data';
 import { getAIRouteAdvice } from '../services/aiService';
 
 interface SafetyMapScreenProps {
   language: Language;
   onOpenShelterDetails?: (shelter: ShelterItem) => void;
+  onRequestAid?: (service?: DispatchService) => void;
   currentLocation?: string;
   userCoordinates?: UserCoordinates | null;
   isGPSActive?: boolean;
@@ -14,6 +15,8 @@ interface SafetyMapScreenProps {
 
 export const SafetyMapScreen: React.FC<SafetyMapScreenProps> = ({
   language,
+  onOpenShelterDetails,
+  onRequestAid,
   currentLocation = 'Agrabad, Chattogram',
   userCoordinates,
   isGPSActive,
@@ -630,12 +633,26 @@ export const SafetyMapScreen: React.FC<SafetyMapScreenProps> = ({
 
             <button
               onClick={() => setShelterModalOpen(true)}
-              className="w-full sm:w-auto h-12 px-5 rounded-full bg-surface-container text-on-surface font-headline text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform cursor-pointer"
+              className="w-full sm:w-auto h-12 px-4 rounded-full bg-surface-container text-on-surface font-headline text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform cursor-pointer"
               type="button"
             >
               <span className="material-symbols-outlined text-[18px] text-secondary">info</span>
-              <span>{language === 'en' ? 'Shelter Details' : 'বিস্তারিত'}</span>
+              <span>{language === 'en' ? 'Details' : 'বিস্তারিত'}</span>
             </button>
+
+            {onRequestAid && (
+              <button
+                onClick={() => {
+                  const shelterService = DISPATCH_SERVICES.find((s) => s.id === 'shelter') || DISPATCH_SERVICES[0];
+                  onRequestAid(shelterService);
+                }}
+                className="w-full sm:w-auto h-12 px-4 rounded-full bg-error-container text-on-error-container font-headline text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-transform cursor-pointer shadow-xs"
+                type="button"
+              >
+                <span className="material-symbols-outlined text-[18px] text-error">volunteer_activism</span>
+                <span>{language === 'en' ? 'Request Aid' : 'সাহায্য চান'}</span>
+              </button>
+            )}
           </div>
         </div>
 

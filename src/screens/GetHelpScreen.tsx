@@ -5,8 +5,10 @@ import { DISPATCH_SERVICES } from '../data';
 interface GetHelpScreenProps {
   language: Language;
   currentLocation: string;
-  onNavigateTab: (tab: TabType) => void;
-  onOpenDispatchModal: (service: DispatchService) => void;
+  onNavigateTab?: (tab: TabType) => void;
+  onOpenDispatchModal?: (service: DispatchService) => void;
+  onSelectService?: (service: DispatchService) => void;
+  onOpenAIChat?: () => void;
   userCoordinates?: UserCoordinates | null;
   isGPSActive?: boolean;
 }
@@ -16,9 +18,18 @@ export const GetHelpScreen: React.FC<GetHelpScreenProps> = ({
   currentLocation,
   onNavigateTab,
   onOpenDispatchModal,
+  onSelectService,
+  onOpenAIChat,
   userCoordinates,
   isGPSActive,
 }) => {
+  const triggerDispatchModal = (service: DispatchService) => {
+    if (onOpenDispatchModal) {
+      onOpenDispatchModal(service);
+    } else if (onSelectService) {
+      onSelectService(service);
+    }
+  };
   const [criticalEmergencyMode, setCriticalEmergencyMode] = useState(false);
   const [sosActive, setSosActive] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -188,7 +199,7 @@ export const GetHelpScreen: React.FC<GetHelpScreenProps> = ({
           {DISPATCH_SERVICES.map((service) => (
             <button
               key={service.id}
-              onClick={() => onOpenDispatchModal(service)}
+              onClick={() => triggerDispatchModal(service)}
               className="w-full min-h-[64px] p-3 rounded-2xl bg-surface-container-lowest shadow-xs hover:shadow-md active:bg-surface-container-high transition-all text-left flex items-center justify-between gap-3 group border border-surface-container-high/40 cursor-pointer"
               type="button"
             >
