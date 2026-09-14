@@ -1,0 +1,7 @@
+{
+  "name": "SafeNow",
+  "description": "Civic disaster response and community safety intelligence platform with live HUD, bilingual hazard alerts, interactive safety map, and rapid emergency dispatch.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
